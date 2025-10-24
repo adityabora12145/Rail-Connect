@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rail Connect | Book Train Tickets</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      /* --- Additional Booking Page Styles --- */
+      .train-results {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        margin: 30px auto;
+      }
+      .train {
+        border-bottom: 1px solid #eee;
+        padding: 15px 0;
+      }
+      .train:last-child {
+        border-bottom: none;
+      }
+      .train h3 {
+        color: #176fc1;
+      }
+      .train p {
+        margin: 5px 0;
+      }
+      .book-btn {
+        background-color: #e8493d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .book-btn:hover {
+        background-color: #c53d32;
+      }
+      /* Popup for passenger details */
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        width: 300px;
+      }
+      .popup input,
+      .popup select {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      .popup button {
+        width: 48%;
+        padding: 8px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .logout {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: red;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 🔹 Header (from your Rail Connect design) -->
+    <header class="main-header">
+      <div class="container nav-container">
+        <div class="logo">
+          <img
+            src="logo-placeholder.png"
+            alt="RailYatri Logo"
+            class="logo-img"
+          />
+          <span class="logo-text">Rail Connect</span>
+        </div>
+        <nav class="nav-menu">
+          <a href="#" class="nav-link active">Train Tickets</a>
+          <a href="#" class="nav-link">About Us</a>
+          <a href="#" class="nav-link">Contact Us</a>
+          <a href="#" class="nav-link">Train Info</a>
+          <a href="bookings.html" class="nav-link">My Bookings</a>
+        </nav>
+        <div class="right-nav">
+          <button class="save-button">⭐ Save ₹100</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 🔹 Hero Section -->
+    <main class="hero-section">
+      <div class="container hero-content">
+        <h1 class="hero-title">Train Ticket Booking</h1>
+        <p class="hero-subtitle">IRCTC Authorized Partner</p>
+
+        <button class="logout" onclick="logout()">Logout</button>
+        <h2
+          id="userGreeting"
+          style="text-align: center; margin-bottom: 10px"
+        ></h2>
+
+        <!-- Search form -->
+        <form
+          class="booking-form"
+          onsubmit="event.preventDefault(); searchTrains();"
+        >
+          <div class="input-group">
+            <label for="from">From Station</label>
+            <input
+              type="text"
+              id="from"
+              list="stationsFrom"
+              value="Dehradun"
+              placeholder="Enter source station"
+              required
+            />
+          </div>
+
+          <button type="button" class="swap-button">↔</button>
+
+          <div class="input-group">
+            <label for="to">To Station</label>
+            <input
+              type="text"
+              id="to"
+              list="stationsTo"
+              placeholder="Enter destination station"
+              oninput="resetSearch()"
+              required
+            />
+          </div>
+
+          <!-- ✅ Date of Journey -->
+          <div class="input-group">
+            <label for="date">Date of Journey</label>
+            <input type="date" id="date" name="date" required />
+          </div>
+
+          <!-- Autocomplete Datalists -->
+          <datalist id="stationsFrom"></datalist>
+          <datalist id="stationsTo"></datalist>
+
+          <button type="submit" class="search-button">Search Trains</button>
+        </form>
+      </div>
+    </main>
+
+    <section class="features-section" id="whyRailYatri">
+      <div class="container">
+        <h2 class="features-title">Why book from Rail Connect</h2>
+        <div class="feature-cards">
+          <div class="card">
+            <div class="card-icon icon-pnr">🚂</div>
+            <h3 class="card-heading">
+              Get Live Train Status, PNR Status, Time Table & More
+            </h3>
+            <p class="card-text">
+              Plan your journey smoothly & without any hassles.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-icon icon-cash">💰</div>
+            <h3 class="card-heading">Extra Savings with RY Cash</h3>
+            <p class="card-text">
+              Earn & use RY Cash to get discounts on train bookings
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-icon icon-clock">⏱️</div>
+            <h3 class="card-heading">Book Train Tickets Within 2 Minutes</h3>
+            <p class="card-text">
+              Customized experience for a superfast booking
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-icon icon-secure">🔒</div>
+            <h3 class="card-heading">Secure Payment Gateway</h3>
+            <p class="card-text">
+              Designed to provide you a safe booking experience
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🔹 Search Results Section -->
+    <div id="trainList" class="train-results"></div>
+
+    <!-- 🔹 Passenger Details Popup -->
+    <div class="popup" id="passengerPopup">
+      <h3>Passenger Details</h3>
+      <input type="text" id="pName" placeholder="Full Name" required />
+      <input type="number" id="pAge" placeholder="Age" required />
+      <select id="pGender">
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+      <div
+        style="display: flex; justify-content: space-between; margin-top: 10px"
+      >
+        <button
+          onclick="confirmBooking()"
+          style="background: #176fc1; color: white"
+        >
+          Confirm
+        </button>
+        <button onclick="closePopup()" style="background: red; color: white">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <script src="booking.js"></script>
+  </body>
+</html>
