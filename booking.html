@@ -1,240 +1,362 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Rail Connect | Book Train Tickets</title>
-    <link rel="stylesheet" href="style.css" />
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Train - Rail Connect</title>
     <style>
-      /* --- Additional Booking Page Styles --- */
-      .train-results {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        max-width: 900px;
-        margin: 30px auto;
-      }
-      .train {
-        border-bottom: 1px solid #eee;
-        padding: 15px 0;
-      }
-      .train:last-child {
-        border-bottom: none;
-      }
-      .train h3 {
-        color: #176fc1;
-      }
-      .train p {
-        margin: 5px 0;
-      }
-      .book-btn {
-        background-color: #e8493d;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      .book-btn:hover {
-        background-color: #c53d32;
-      }
-      /* Popup for passenger details */
-      .popup {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-        width: 300px;
-      }
-      .popup input,
-      .popup select {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-      }
-      .popup button {
-        width: 48%;
-        padding: 8px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-      }
-      .logout {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        background: red;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-      }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            color: #667eea;
+            font-size: 1.8rem;
+        }
+
+        .logout-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .trains-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .train-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .train-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .train-number {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .timing {
+            text-align: center;
+        }
+
+        .timing .time {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timing .station {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .duration {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .price-section {
+            text-align: center;
+        }
+
+        .class-type {
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .available {
+            color: #27ae60;
+            font-size: 12px;
+        }
+
+        .book-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .book-btn:hover {
+            background: #229954;
+        }
+
+        .no-trains {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .ticket-count {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .ticket-count button {
+            padding: 5px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .ticket-count span {
+            font-size: 18px;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 12px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+        }
     </style>
-  </head>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Rail Connect - Book Tickets</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
 
-  <body>
-    <!-- 🔹 Header (from your Rail Connect design) -->
-    <header class="main-header">
-      <div class="container nav-container">
-        <div class="logo">
-          <img
-            src="logo-placeholder.png"
-            alt="RailYatri Logo"
-            class="logo-img"
-          />
-          <span class="logo-text">Rail Connect</span>
+    <div class="container">
+        <div class="search-section">
+            <h2 style="margin-bottom: 20px; color: #333;">Search Trains</h2>
+            <div class="search-grid">
+                <div class="form-group">
+                    <label for="from">From</label>
+                    <input type="text" id="from" placeholder="Enter source station">
+                </div>
+                <div class="form-group">
+                    <label for="to">To</label>
+                    <input type="text" id="to" placeholder="Enter destination">
+                </div>
+                <div class="form-group">
+                    <label for="date">Date of Journey</label>
+                    <input type="date" id="date">
+                </div>
+                <div class="form-group">
+                    <label for="class">Class</label>
+                    <select id="class">
+                        <option value="all">All Classes</option>
+                        <option value="ac">AC</option>
+                        <option value="non-ac">Non-AC</option>
+                    </select>
+                </div>
+            </div>
+            <button class="search-btn" onclick="searchTrains()">Search Trains</button>
         </div>
-        <nav class="nav-menu">
-          <a href="#" class="nav-link active">Train Tickets</a>
-          <a href="#" class="nav-link">About Us</a>
-          <a href="#" class="nav-link">Contact Us</a>
-          <a href="#" class="nav-link">Train Info</a>
-          <a href="bookings.html" class="nav-link">My Bookings</a>
-        </nav>
-        <div class="right-nav">
-          <button class="save-button">⭐ Save ₹100</button>
+
+        <div class="filters">
+            <h3 style="margin-bottom: 15px; color: #333;">Sort By</h3>
+            <div class="filter-options">
+                <button class="filter-btn active" onclick="sortTrains('default')">Default</button>
+                <button class="filter-btn" onclick="sortTrains('price-low')">Price: Low to High</button>
+                <button class="filter-btn" onclick="sortTrains('price-high')">Price: High to Low</button>
+                <button class="filter-btn" onclick="sortTrains('duration')">Duration</button>
+                <button class="filter-btn" onclick="sortTrains('departure')">Departure Time</button>
+            </div>
         </div>
-      </div>
-    </header>
 
-    <!-- 🔹 Hero Section -->
-    <main class="hero-section">
-      <div class="container hero-content">
-        <h1 class="hero-title">Train Ticket Booking</h1>
-        <p class="hero-subtitle">IRCTC Authorized Partner</p>
-
-        <button class="logout" onclick="logout()">Logout</button>
-        <h2
-          id="userGreeting"
-          style="text-align: center; margin-bottom: 10px"
-        ></h2>
-
-        <!-- Search form -->
-        <form
-          class="booking-form"
-          onsubmit="event.preventDefault(); searchTrains();"
-        >
-          <div class="input-group">
-            <label for="from">From Station</label>
-            <input
-              type="text"
-              id="from"
-              list="stationsFrom"
-              value="Dehradun"
-              placeholder="Enter source station"
-              required
-            />
-          </div>
-
-          <button type="button" class="swap-button">↔</button>
-
-          <div class="input-group">
-            <label for="to">To Station</label>
-            <input
-              type="text"
-              id="to"
-              list="stationsTo"
-              placeholder="Enter destination station"
-              oninput="resetSearch()"
-              required
-            />
-          </div>
-
-          <!-- ✅ Date of Journey -->
-          <div class="input-group">
-            <label for="date">Date of Journey</label>
-            <input type="date" id="date" name="date" required />
-          </div>
-
-          <!-- Autocomplete Datalists -->
-          <datalist id="stationsFrom"></datalist>
-          <datalist id="stationsTo"></datalist>
-
-          <button type="submit" class="search-button">Search Trains</button>
-        </form>
-      </div>
-    </main>
-
-    <section class="features-section" id="whyRailYatri">
-      <div class="container">
-        <h2 class="features-title">Why book from Rail Connect</h2>
-        <div class="feature-cards">
-          <div class="card">
-            <div class="card-icon icon-pnr">🚂</div>
-            <h3 class="card-heading">
-              Get Live Train Status, PNR Status, Time Table & More
-            </h3>
-            <p class="card-text">
-              Plan your journey smoothly & without any hassles.
-            </p>
-          </div>
-
-          <div class="card">
-            <div class="card-icon icon-cash">💰</div>
-            <h3 class="card-heading">Extra Savings with RY Cash</h3>
-            <p class="card-text">
-              Earn & use RY Cash to get discounts on train bookings
-            </p>
-          </div>
-
-          <div class="card">
-            <div class="card-icon icon-clock">⏱️</div>
-            <h3 class="card-heading">Book Train Tickets Within 2 Minutes</h3>
-            <p class="card-text">
-              Customized experience for a superfast booking
-            </p>
-          </div>
-
-          <div class="card">
-            <div class="card-icon icon-secure">🔒</div>
-            <h3 class="card-heading">Secure Payment Gateway</h3>
-            <p class="card-text">
-              Designed to provide you a safe booking experience
-            </p>
-          </div>
+        <div id="trainsList" class="trains-list">
+            <div class="no-trains">
+                <h3>Search for trains to see available options</h3>
+                <p>Enter your source, destination, and travel date above</p>
+            </div>
         </div>
-      </div>
-    </section>
+    </div>
 
-    <!-- 🔹 Search Results Section -->
-    <div id="trainList" class="train-results"></div>
-
-    <!-- 🔹 Passenger Details Popup -->
-    <div class="popup" id="passengerPopup">
-      <h3>Passenger Details</h3>
-      <input type="text" id="pName" placeholder="Full Name" required />
-      <input type="number" id="pAge" placeholder="Age" required />
-      <select id="pGender">
-        <option value="">Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
-      <div
-        style="display: flex; justify-content: space-between; margin-top: 10px"
-      >
-        <button
-          onclick="confirmBooking()"
-          style="background: #176fc1; color: white"
-        >
-          Confirm
-        </button>
-        <button onclick="closePopup()" style="background: red; color: white">
-          Cancel
-        </button>
-      </div>
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2>Confirm Booking</h2>
+            <div id="bookingDetails"></div>
+            <div class="form-group">
+                <label>Number of Tickets</label>
+                <div class="ticket-count">
+                    <button onclick="decrementTickets()">-</button>
+                    <span id="ticketCount">1</span>
+                    <button onclick="incrementTickets()">+</button>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <strong>Total Price: ₹<span id="totalPrice">0</span></strong>
+            </div>
+            <button class="confirm-btn" onclick="confirmBooking()">Confirm Booking</button>
+        </div>
     </div>
 
     <script src="booking.js"></script>
-  </body>
+</body>
 </html>
