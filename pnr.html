@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNR Status - Rail Connect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar h1 { 
+            font-size: 1.8rem; 
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .logout-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .pnr-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 { 
+            color: #333; 
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .search-form {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .search-btn:hover {
+            opacity: 0.9;
+        }
+
+        .status-result {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-result.show {
+            display: block;
+        }
+
+        .status-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-waitlist {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .passenger-list {
+            margin-top: 20px;
+        }
+
+        .passenger-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .error-msg {
+            color: #721c24;
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Rail Connect - PNR Status</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="booking.html">Book Tickets</a>
+            <a href="mybookings.html">My Bookings</a>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="pnr-card">
+            <h2>Check PNR Status</h2>
+            
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="pnr">Enter PNR Number</label>
+                    <input type="text" id="pnr" placeholder="Enter 10-digit PNR number" maxlength="10">
+                </div>
+                <button class="search-btn" onclick="checkPNR()">Check Status</button>
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+
+            <div id="statusResult" class="status-result">
+                <h3 style="color: #333; margin-bottom: 15px;">PNR Details</h3>
+                <div class="status-info">
+                    <div class="info-item">
+                        <div class="info-label">PNR Number</div>
+                        <div class="info-value" id="pnrNumber"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Train Number</div>
+                        <div class="info-value" id="trainNumber"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Train Name</div>
+                        <div class="info-value" id="trainName"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Date of Journey</div>
+                        <div class="info-value" id="journeyDate"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">From</div>
+                        <div class="info-value" id="fromStation"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">To</div>
+                        <div class="info-value" id="toStation"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Class</div>
+                        <div class="info-value" id="classType"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Booking Status</div>
+                        <div class="info-value">
+                            <span id="bookingStatus" class="status-badge"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="passenger-list">
+                    <h4 style="color: #333; margin-bottom: 10px;">Passenger Details</h4>
+                    <div id="passengerDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const pnrData = {
+            '1234567890': {
+                pnr: '1234567890',
+                trainNumber: '12301',
+                trainName: 'Rajdhani Express',
+                date: '2025-11-15',
+                from: 'Delhi',
+                to: 'Mumbai',
+                class: '3A',
+                status: 'Confirmed',
+                passengers: [
+                    { name: 'Passenger 1', age: 28, berth: 'S1/45 (Lower)', status: 'CNF' },
+                    { name: 'Passenger 2', age: 25, berth: 'S1/46 (Middle)', status: 'CNF' }
+                ]
+            },
+            '9876543210': {
+                pnr: '9876543210',
+                trainNumber: '12002',
+                trainName: 'Shatabdi Express',
+                date: '2025-11-20',
+                from: 'Delhi',
+                to: 'Mumbai',
+                class: 'CC',
+                status: 'Waitlist',
+                passengers: [
+                    { name: 'Passenger 1', age: 30, berth: 'WL/5', status: 'WL/5' }
+                ]
+            }
+        };
+
+        function checkPNR() {
+            const pnrInput = document.getElementById('pnr').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const statusResult = document.getElementById('statusResult');
+
+            errorMsg.classList.remove('show');
+            statusResult.classList.remove('show');
+
+            if (!pnrInput || pnrInput.length !== 10) {
+                errorMsg.textContent = 'Please enter a valid 10-digit PNR number';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            const data = pnrData[pnrInput];
+
+            if (!data) {
+                errorMsg.textContent = 'PNR not found. Please check and try again.';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            document.getElementById('pnrNumber').textContent = data.pnr;
+            document.getElementById('trainNumber').textContent = data.trainNumber;
+            document.getElementById('trainName').textContent = data.trainName;
+            document.getElementById('journeyDate').textContent = data.date;
+            document.getElementById('fromStation').textContent = data.from;
+            document.getElementById('toStation').textContent = data.to;
+            document.getElementById('classType').textContent = data.class;
+
+            const statusBadge = document.getElementById('bookingStatus');
+            statusBadge.textContent = data.status;
+            statusBadge.className = 'status-badge ' + (data.status === 'Confirmed' ? 'status-confirmed' : 'status-waitlist');
+
+            const passengerDetails = document.getElementById('passengerDetails');
+            passengerDetails.innerHTML = data.passengers.map(p => `
+                <div class="passenger-item">
+                    <div>
+                        <strong>${p.name}</strong> (Age: ${p.age})
+                    </div>
+                    <div>
+                        <strong>${p.berth}</strong> - ${p.status}
+                    </div>
+                </div>
+            `).join('');
+
+            statusResult.classList.add('show');
+        }
+
+        document.getElementById('pnr').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPNR();
+            }
+        });
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
