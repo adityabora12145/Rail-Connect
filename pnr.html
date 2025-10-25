@@ -418,16 +418,15 @@
             const resultSection = document.getElementById('resultSection');
 
             errorMsg.style.display = 'none';
+            resultSection.style.display = 'none';
 
             if (!pnrInput) {
                 showError('Please enter a PNR number');
-                resultSection.style.display = 'none';
                 return;
             }
 
             if (pnrInput.length !== 10 || !/^\d+$/.test(pnrInput)) {
                 showError('PNR number must be exactly 10 digits');
-                resultSection.style.display = 'none';
                 return;
             }
 
@@ -435,7 +434,6 @@
 
             if (!pnrData) {
                 showError('PNR not found. Please check the number and try again. Use sample PNRs for testing.');
-                resultSection.style.display = 'none';
                 return;
             }
 
