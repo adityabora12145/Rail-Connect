@@ -417,13 +417,17 @@
             const errorMsg = document.getElementById('errorMsg');
             const resultSection = document.getElementById('resultSection');
 
+            errorMsg.style.display = 'none';
+
             if (!pnrInput) {
                 showError('Please enter a PNR number');
+                resultSection.style.display = 'none';
                 return;
             }
 
             if (pnrInput.length !== 10 || !/^\d+$/.test(pnrInput)) {
                 showError('PNR number must be exactly 10 digits');
+                resultSection.style.display = 'none';
                 return;
             }
 
@@ -435,7 +439,6 @@
                 return;
             }
 
-            errorMsg.style.display = 'none';
             displayPNRDetails(pnrInput, pnrData);
             resultSection.style.display = 'block';
         }
