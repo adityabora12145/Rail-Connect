@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNR Status - Rail Connect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar h1 { 
+            font-size: 1.8rem; 
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .logout-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .pnr-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        h2 { 
+            color: #333; 
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .search-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .pnr-input {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .pnr-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .check-btn:hover {
+            opacity: 0.9;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .status-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-header h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .status-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-waitlist {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-rac {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .passenger-section {
+            margin-top: 30px;
+        }
+
+        .passenger-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .passenger-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .passenger-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .passenger-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .passenger-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            color: #333;
+        }
+
+        .passenger-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .journey-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
+
+        .journey-details h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .journey-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+
+        .sample-pnr {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            text-align: center;
+            color: #0c5460;
+        }
+
+        .sample-pnr strong {
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .status-info,
+            .journey-info {
+                grid-template-columns: 1fr;
+            }
+
+            .passenger-table {
+                font-size: 0.85rem;
+            }
+
+            .passenger-table th,
+            .passenger-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Check PNR Status</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="booking.html">Book Tickets</a>
+            <a href="mybookings.html">My Bookings</a>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="pnr-card">
+            <h2>Check Your PNR Status</h2>
+            
+            <div class="search-section">
+                <input 
+                    type="text" 
+                    id="pnrInput" 
+                    class="pnr-input" 
+                    placeholder="Enter 10-digit PNR Number"
+                    maxlength="10"
+                    pattern="[0-9]{10}"
+                >
+                <button class="check-btn" onclick="checkPNR()">Check Status</button>
+            </div>
+
+            <div class="sample-pnr">
+                <strong>Sample PNRs for testing:</strong> 1234567890, 9876543210, 5555666677
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+
+            <div id="resultSection" class="result-section">
+                <div class="status-header">
+                    <h3 id="trainName"></h3>
+                    <div class="status-info">
+                        <div class="info-item">
+                            <span class="info-label">PNR Number:</span>
+                            <span class="info-value" id="pnrNumber"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Train Number:</span>
+                            <span class="info-value" id="trainNumber"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Booking Status:</span>
+                            <span id="bookingStatus"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Class:</span>
+                            <span class="info-value" id="classType"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="journey-details">
+                    <h4>Journey Details</h4>
+                    <div class="journey-info">
+                        <div class="info-item">
+                            <span class="info-label">From:</span>
+                            <span class="info-value" id="fromStation"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">To:</span>
+                            <span class="info-value" id="toStation"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date of Journey:</span>
+                            <span class="info-value" id="journeyDate"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Departure Time:</span>
+                            <span class="info-value" id="departureTime"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="passenger-section">
+                    <h3>Passenger Details</h3>
+                    <table class="passenger-table">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Seat Number</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="passengerTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const pnrDatabase = {
+            '1234567890': {
+                trainName: 'Rajdhani Express',
+                trainNumber: '12301',
+                from: 'Delhi',
+                to: 'Mumbai',
+                date: '2025-11-15',
+                departureTime: '16:00',
+                class: '3A',
+                status: 'Confirmed',
+                passengers: [
+                    { name: 'Rahul Kumar', age: 28, gender: 'Male', seat: 'B1-45', status: 'CNF' },
+                    { name: 'Priya Sharma', age: 25, gender: 'Female', seat: 'B1-46', status: 'CNF' }
+                ]
+            },
+            '9876543210': {
+                trainName: 'Shatabdi Express',
+                trainNumber: '12002',
+                from: 'Delhi',
+                to: 'Mumbai',
+                date: '2025-11-20',
+                departureTime: '06:00',
+                class: 'CC',
+                status: 'Confirmed',
+                passengers: [
+                    { name: 'Amit Patel', age: 35, gender: 'Male', seat: 'C4-12', status: 'CNF' }
+                ]
+            },
+            '5555666677': {
+                trainName: 'Duronto Express',
+                trainNumber: '12259',
+                from: 'Mumbai',
+                to: 'Delhi',
+                date: '2025-11-25',
+                departureTime: '22:30',
+                class: '2A',
+                status: 'Waitlist',
+                passengers: [
+                    { name: 'Sneha Gupta', age: 30, gender: 'Female', seat: 'WL-15', status: 'WL15' },
+                    { name: 'Arjun Singh', age: 32, gender: 'Male', seat: 'WL-16', status: 'WL16' },
+                    { name: 'Kavya Reddy', age: 8, gender: 'Female', seat: 'WL-17', status: 'WL17' }
+                ]
+            }
+        };
+
+        function checkPNR() {
+            const pnrInput = document.getElementById('pnrInput').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const resultSection = document.getElementById('resultSection');
+
+            if (!pnrInput) {
+                showError('Please enter a PNR number');
+                return;
+            }
+
+            if (pnrInput.length !== 10 || !/^\d+$/.test(pnrInput)) {
+                showError('PNR number must be exactly 10 digits');
+                return;
+            }
+
+            const pnrData = pnrDatabase[pnrInput];
+
+            if (!pnrData) {
+                showError('PNR not found. Please check the number and try again. Use sample PNRs for testing.');
+                resultSection.style.display = 'none';
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+            displayPNRDetails(pnrInput, pnrData);
+            resultSection.style.display = 'block';
+        }
+
+        function displayPNRDetails(pnr, data) {
+            document.getElementById('pnrNumber').textContent = pnr;
+            document.getElementById('trainName').textContent = data.trainName;
+            document.getElementById('trainNumber').textContent = data.trainNumber;
+            document.getElementById('classType').textContent = data.class;
+            document.getElementById('fromStation').textContent = data.from;
+            document.getElementById('toStation').textContent = data.to;
+            document.getElementById('journeyDate').textContent = data.date;
+            document.getElementById('departureTime').textContent = data.departureTime;
+
+            const statusElement = document.getElementById('bookingStatus');
+            statusElement.innerHTML = `<span class="status-badge status-${data.status.toLowerCase()}">${data.status}</span>`;
+
+            const passengerTableBody = document.getElementById('passengerTableBody');
+            passengerTableBody.innerHTML = data.passengers.map((passenger, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${passenger.name}</td>
+                    <td>${passenger.age}</td>
+                    <td>${passenger.gender}</td>
+                    <td>${passenger.seat}</td>
+                    <td><strong>${passenger.status}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        document.getElementById('pnrInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPNR();
+            }
+        });
+    </script>
+</body>
+</html>
